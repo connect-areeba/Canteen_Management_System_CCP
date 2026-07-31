@@ -3,334 +3,406 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Interactive Portal for Campus Canteen Management System.">
-  <title>Campus Canteen - Smart Ordering Portal</title>
+  <title>Canteen Management System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Soft, warm blue ambient glow effects -->
-  <div class="ambient-glow bg-blue"></div>
-  <div class="ambient-glow bg-amber"></div>
 
-  <div class="app-wrapper">
-    <!-- Header -->
-    <header class="main-header glass-panel">
-      <div class="logo-group">
-        <span class="logo-icon">🍔</span>
-        <div class="brand-text">
-          <h1>CAMPUS BISTRO</h1>
-          <span class="system-tag">SMART CANTEEN PORTAL</span>
-        </div>
+  <div class="app-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-icon">🍴</span>
+        <h2>Canteen Management System</h2>
       </div>
-      <div class="header-academic-details">
-        <div class="detail-pill">🏛️ NED University of Engineering & Tech</div>
-        <div class="detail-pill">💻 BCIT Department</div>
-      </div>
-    </header>
-
-    <!-- Main Workspace Grid -->
-    <div class="workspace-grid">
       
-      <!-- Panel 1: Menu Explorer -->
-      <section class="workspace-panel glass-panel" id="panel-menu">
-        <div class="panel-header">
-          <h2>Canteen Menu</h2>
-          <div class="menu-tabs">
-            <button class="menu-tab-btn active" data-category="all">All Items</button>
-            <button class="menu-tab-btn" data-category="food">Food</button>
-            <button class="menu-tab-btn" data-category="drink">Drinks</button>
-          </div>
-        </div>
-        <div class="menu-list-wrapper" id="menu-items-grid">
-          <!-- Dynamically populated from app.js -->
-        </div>
-      </section>
+      <div class="sidebar-user">
+        <h3>Admin Portal</h3>
+        <p>Central Kitchen</p>
+      </div>
 
-      <!-- Panel 2: Smart Kiosk / Order Placement -->
-      <section class="workspace-panel glass-panel" id="panel-terminal">
-        <div class="panel-header">
-          <h2>Place Your Order</h2>
-          <div class="kiosk-status"><span class="status-dot"></span> KIOSK ACTIVE</div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-target="view-dashboard">
+          <span class="nav-icon">🎛️</span> Dashboard
+        </button>
+        <button class="nav-item" data-target="view-orders">
+          <span class="nav-icon">🧾</span> Orders
+        </button>
+        <button class="nav-item" data-target="view-inventory">
+          <span class="nav-icon">📦</span> Inventory
+        </button>
+        <button class="nav-item" data-target="view-menu">
+          <span class="nav-icon">🍽️</span> Menu
+        </button>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="back-btn" id="btn-back" style="display: none;">←</button>
+          <h2 id="topbar-title">Welcome, Admin</h2>
         </div>
+        <div class="topbar-actions">
+          <a href="#">Help</a>
+          <a href="#">Reports</a>
+          <button class="icon-btn">🔔</button>
+          <button class="icon-btn">👤</button>
+        </div>
+      </header>
+
+      <div class="content-area">
         
-        <div class="terminal-container">
-          <!-- State A: Login -->
-          <div class="terminal-screen active" id="screen-login">
-            <div class="welcome-box">
-              <h3>Welcome to Campus Bistro!</h3>
-              <p>Please enter your name and ID to browse items and claim student or employee discounts.</p>
+        <!-- ========================================== -->
+        <!-- VIEW 1: DASHBOARD (Image 1)                -->
+        <!-- ========================================== -->
+        <div class="view-section active" id="view-dashboard">
+          <div class="dashboard-header">
+            <p>Manage your kitchen operations with precision and ease.</p>
+            <div class="datetime-pill">
+              🕒 <span id="current-datetime">Jul 31 - 2026, 11:06 AM</span>
             </div>
-            
-            <div class="form-inputs">
-              <div class="form-group">
-                <label for="input-name">Full Name</label>
-                <input type="text" id="input-name" placeholder="Enter your name (e.g., Hasan Shahir)" autocomplete="off">
-              </div>
-              <div class="form-group">
-                <label for="input-id">University ID</label>
-                <input type="text" id="input-id" placeholder="std-XXXX (Student) or emp-XXXX (Employee)" autocomplete="off">
-                <span class="hint-text">💡 Student IDs begin with <strong>std-</strong> | Employee IDs begin with <strong>emp-</strong></span>
-              </div>
-              <button class="btn glow-btn" id="btn-login-submit">Start Ordering</button>
-            </div>
-          </div>
-
-          <!-- State B: Item Ordering -->
-          <div class="terminal-screen" id="screen-ordering">
-            <div class="ordering-hud">
-              <div class="auth-user-info">
-                <span>User: <span id="hud-name">-</span></span>
-                <span id="hud-role" class="badge">-</span>
-                <span class="id-sub">ID: <span id="hud-id">-</span></span>
-              </div>
-              <button class="btn btn-secondary-sm" id="btn-exit-ordering">Switch User</button>
-            </div>
-
-            <div class="order-input-bar">
-              <span class="search-icon">🔍</span>
-              <input type="text" id="terminal-item-input" placeholder="Type Item ID (e.g. F01, D03) or click '+' from Menu..." autocomplete="off">
-              <button class="btn btn-primary-sm" id="btn-add-item-id">Add Item</button>
-            </div>
-
-            <!-- Cart Table -->
-            <div class="cart-container">
-              <h3>Your Selected Items</h3>
-              <div class="cart-table-wrapper">
-                <table class="cart-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Item Name</th>
-                      <th>Category</th>
-                      <th>Price</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="cart-table-body">
-                    <!-- Dynamic Cart Rows -->
-                  </tbody>
-                </table>
-                <div class="empty-cart-msg" id="cart-empty-msg">Your tray is empty! Click "+" on menu items to add them.</div>
-              </div>
-            </div>
-
-            <div class="checkout-footer">
-              <div class="subtotal-box">
-                <span>Current Subtotal:</span>
-                <span id="label-subtotal">0.00 PKR</span>
-              </div>
-              <button class="btn glow-btn checkout-btn" id="btn-submit-order">Place Order & Get Bill</button>
-            </div>
-          </div>
-
-          <!-- State C: Bill Receipt Output -->
-          <div class="terminal-screen" id="screen-bill">
-            <div class="receipt-outer">
-              <div class="receipt-paper">
-                <div class="receipt-header">
-                  <span class="receipt-icon">🧾</span>
-                  <h3>CAMPUS BISTRO</h3>
-                  <p>NED University Canteen Service</p>
-                  <div class="receipt-divider"></div>
-                </div>
-                <div class="receipt-meta">
-                  <div class="receipt-row"><span>Date:</span> <span id="bill-date">-</span></div>
-                  <div class="receipt-row"><span>Customer:</span> <span id="bill-cust-name">-</span></div>
-                  <div class="receipt-row"><span>Role:</span> <span id="bill-cust-role">-</span></div>
-                  <div class="receipt-row"><span>ID:</span> <span id="bill-cust-id">-</span></div>
-                  <div class="receipt-divider"></div>
-                </div>
-                <table class="receipt-table">
-                  <thead>
-                    <tr>
-                      <th>Item Description</th>
-                      <th class="text-right">Price</th>
-                    </tr>
-                  </thead>
-                  <tbody id="bill-items-body">
-                    <!-- Bill rows -->
-                  </tbody>
-                </table>
-                <div class="receipt-summary">
-                  <div class="receipt-divider"></div>
-                  <div class="receipt-row">
-                    <span>Subtotal:</span>
-                    <span id="bill-subtotal">-</span>
-                  </div>
-                  <div class="receipt-row text-green" id="bill-discount-row">
-                    <span>Employee Discount (5%):</span>
-                    <span id="bill-discount">-</span>
-                  </div>
-                  <div class="receipt-row font-large bill-total-row">
-                    <span>Total Amount:</span>
-                    <span id="bill-total">-</span>
-                  </div>
-                  <div class="receipt-double-divider"></div>
-                </div>
-                <div class="receipt-footer">
-                  <p>Polymorphic Pricing Calculations Applied</p>
-                  <p>Thank you for your order.</p>
-                </div>
-              </div>
-            </div>
-            <button class="btn glow-btn btn-full" id="btn-restart-terminal">Order Something Else</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Panel 3: Stock Report & Restock Interface -->
-      <section class="workspace-panel glass-panel" id="panel-stock">
-        <div class="panel-header">
-          <h2>Inventory Desk</h2>
-        </div>
-        <div class="stock-dashboard-body">
-          <div class="stock-list-grid" id="stock-list-grid">
-            <!-- Dynamic Stock Cards -->
           </div>
           
-          <div class="restock-section glass-panel-inner">
-            <h3>Restock Canteen Supplies</h3>
-            <div class="restock-form">
-              <div class="form-group-inline">
-                <label for="restock-id-select">Item to Add</label>
-                <select id="restock-id-select">
-                  <!-- Dynamically populated options -->
-                </select>
+          <div class="dashboard-grid-top">
+            <!-- Show Menu Card -->
+            <div class="dash-card card-show-menu action-card" data-target="view-menu">
+              <div class="card-icon-wrap">
+                <span class="icon">🍽️</span>
               </div>
-              <div class="form-group-inline">
-                <label for="restock-qty-input">Quantity</label>
-                <input type="number" id="restock-qty-input" min="1" max="100" value="10">
+              <h3>Show Menu</h3>
+              <p>View and edit current food offerings, prices, and daily specials.</p>
+              <span class="card-link">Enter View →</span>
+              <div class="card-bg-watermark">🍴</div>
+            </div>
+            
+            <!-- Place Order Card -->
+            <div class="dash-card card-place-order action-card" data-target="view-orders">
+              <div class="card-icon-wrap center-icon">
+                <span class="icon">🛒</span>
               </div>
-              <button class="btn btn-secondary-sm" id="btn-submit-restock">Update Stock</button>
+              <h3 class="text-center">Place Order</h3>
+              <p class="text-center">Process customer sales</p>
             </div>
           </div>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- OOP Concepts / Class Visualizer Section -->
-    <section class="oop-section glass-panel">
-      <div class="panel-header">
-        <h2>OOP Project Architecture</h2>
-        <p class="section-desc">Interactive diagram mapping how the C++ source code structures this Canteen System.</p>
-      </div>
-      <div class="oop-visualizer-grid">
-        <!-- Card 1: Inheritance -->
-        <div class="concept-card glass-panel-inner">
-          <div class="concept-icon">🧬</div>
-          <h3>Class Inheritance</h3>
-          <div class="concept-tree">
-            <div class="tree-node parent">MenuItem (Base)</div>
-            <div class="tree-children">
-              <div class="tree-node child">Food (derived)</div>
-              <div class="tree-node child">Drink (derived)</div>
-            </div>
-            <div class="tree-node parent" style="margin-top: 15px;">Person (Base)</div>
-            <div class="tree-children">
-              <div class="tree-node child">Student (derived)</div>
-              <div class="tree-node child">Employee (derived)</div>
-            </div>
-          </div>
-          <p>MenuItem and Person serve as clean, encapsulated base classes. Subclasses inherit properties while detailing custom type definitions.</p>
-        </div>
-
-        <!-- Card 2: Factory Design Pattern -->
-        <div class="concept-card glass-panel-inner">
-          <div class="concept-icon">🏭</div>
-          <h3>Factory Pattern</h3>
-          <div class="factory-flow">
-            <div class="flow-box">MenuItemFactory</div>
-            <div class="flow-label">static createItem()</div>
-            <div class="flow-split">
-              <div class="flow-subbox">new Food()</div>
-              <div class="flow-subbox">new Drink()</div>
-            </div>
-          </div>
-          <p>Decouples MenuItem creation logic. The C++ program asks the factory for an item and automatically receives the correct subclass instance.</p>
-        </div>
-
-        <!-- Card 3: Runtime Polymorphism -->
-        <div class="concept-card glass-panel-inner">
-          <div class="concept-icon">🔄</div>
-          <h3>Polymorphism</h3>
-          <div class="poly-visual">
-            <div class="poly-node">
-              <span>Generic Reference</span>
-              <strong>Person& customer</strong>
-            </div>
-            <div class="poly-dispatch">
-              <div class="poly-branch">
-                <span>If Student</span>
-                <strong>applydiscount() → 0% discount</strong>
+          
+          <div class="dashboard-grid-bottom">
+            <!-- Stock Report Card -->
+            <div class="dash-card card-stock action-card" data-target="view-inventory">
+              <div class="card-icon-wrap small">
+                <span class="icon">📊</span>
               </div>
-              <div class="poly-branch">
-                <span>If Employee</span>
-                <strong>applydiscount() → 5% discount</strong>
+              <h3>Stock Report</h3>
+              <div class="card-footer-stats">
+                <span id="dash-low-stock-count">0 items low in stock</span>
+                <span class="icon-mini">📉</span>
               </div>
             </div>
+            
+            <!-- Restock Item Card -->
+            <div class="dash-card card-restock action-card" data-target="view-restock">
+              <div class="restock-header-flex">
+                <div>
+                  <h3>Restock Item</h3>
+                  <p>Update inventory levels</p>
+                </div>
+                <div class="card-icon-wrap small">
+                  <span class="icon">🔄</span>
+                </div>
+              </div>
+              <div class="recent-restock-preview">
+                <span class="icon-mini">🥛</span> Milk 2L <span class="val">+2 units</span>
+              </div>
+            </div>
+            
+            <!-- Exit Card -->
+            <div class="dash-card card-exit">
+              <div class="card-icon-wrap center-icon small">
+                <span class="icon">🚪</span>
+              </div>
+              <h3 class="text-center">Exit</h3>
+              <p class="text-center">Logout System</p>
+            </div>
           </div>
-          <p>Calculates bills dynamically. The billing logic processes a generic reference to the customer, resolving discount rules automatically at runtime.</p>
-        </div>
-
-        <!-- Card 4: Exception Handling -->
-        <div class="concept-card glass-panel-inner">
-          <div class="concept-icon">⚠️</div>
-          <h3>Exception Handling</h3>
-          <div class="exception-visual">
-            <div class="block try">try { check ID prefix }</div>
-            <div class="block throw">throw runtime_error("Invalid ID")</div>
-            <div class="block catch">catch(const exception &e)</div>
+          
+          <!-- System Health -->
+          <div class="system-health-section">
+            <h4>SYSTEM HEALTH</h4>
+            <div class="health-grid">
+              <div class="health-card">
+                <div class="health-indicator active"></div>
+                <div class="health-info">
+                  <span class="label">Server Status</span>
+                  <span class="value">Operational</span>
+                </div>
+              </div>
+              <div class="health-card">
+                <span class="icon-mini">💵</span>
+                <div class="health-info">
+                  <span class="label">Today's Revenue</span>
+                  <span class="value" id="dash-revenue">$1,432.50</span>
+                </div>
+              </div>
+              <div class="health-card">
+                <span class="icon-mini">👥</span>
+                <div class="health-info">
+                  <span class="label">Active Staff</span>
+                  <span class="value">8 Online</span>
+                </div>
+              </div>
+              <div class="health-card">
+                <span class="icon-mini">🗄️</span>
+                <div class="health-info">
+                  <span class="label">Storage</span>
+                  <span class="value">45% Capacity</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <p>Intercepts runtime credential errors. Validates student/employee credentials and catches faults before orders are generated.</p>
         </div>
-      </div>
-    </section>
+        <!-- END DASHBOARD -->
 
-    <!-- C++ Source Code Inspector -->
-    <section class="code-inspector-section glass-panel">
-      <div class="panel-header" id="code-inspector-trigger">
-        <h2>C++ Source Code Inspector</h2>
-        <span class="chevron-icon">▲</span>
-      </div>
-      <div class="code-inspector-body">
-        <div class="code-navigator">
-          <button class="code-nav-btn active" data-file="full">FINAL_CAMPUS_CANTEEN.cpp (Complete)</button>
-          <button class="code-nav-btn" data-file="menuitem">MenuItem & Subclasses</button>
-          <button class="code-nav-btn" data-file="stock">Stock Management Class</button>
-          <button class="code-nav-btn" data-file="person">Person & Student/Employee Classes</button>
-          <button class="code-nav-btn" data-file="ordering">placeOrder & Billing Loops</button>
+        <!-- ========================================== -->
+        <!-- VIEW 2: MENU (Image 2)                     -->
+        <!-- ========================================== -->
+        <div class="view-section" id="view-menu">
+          <div class="menu-view-header">
+            <p>Configure and monitor your daily culinary offerings.</p>
+          </div>
+          
+          <div class="menu-category-section">
+            <div class="category-header">
+              <h3>🍔 Food Items</h3>
+              <span class="item-count badge" id="count-food">16 Items</span>
+            </div>
+            <div class="menu-list" id="menu-list-food">
+              <!-- JS Populated -->
+            </div>
+          </div>
+          
+          <div class="menu-category-section">
+            <div class="category-header">
+              <h3>🥤 Drink Items</h3>
+              <span class="item-count badge" id="count-drink">15 Items</span>
+            </div>
+            <div class="menu-list" id="menu-list-drink">
+              <!-- JS Populated -->
+            </div>
+          </div>
+          
+          <!-- Sticky bottom action bar -->
+          <div class="bottom-action-bar">
+            <button class="btn btn-primary" id="btn-menu-new-order">New Order</button>
+          </div>
         </div>
-        <div class="code-content-wrapper">
-          <pre><code id="cpp-code-display" class="language-cpp">// Loading code snippet...</code></pre>
+        <!-- END MENU -->
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: ORDERS (Image 3)                   -->
+        <!-- ========================================== -->
+        <div class="view-section" id="view-orders">
+          <div class="stepper-container">
+            <div class="step active" id="step-ind-1">
+              <div class="step-circle">1</div>
+              <span class="step-label">Details</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" id="step-ind-2">
+              <div class="step-circle">2</div>
+              <span class="step-label">Menu</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" id="step-ind-3">
+              <div class="step-circle">3</div>
+              <span class="step-label">Confirm</span>
+            </div>
+          </div>
+          
+          <!-- STEP 1: Details -->
+          <div class="order-form-card" id="step1-card">
+            <h3>Customer Information</h3>
+            
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="order-cust-name" placeholder="John Doe" autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+              <label>Identification ID</label>
+              <input type="text" id="order-cust-id" placeholder="e.g. std123 or emp456" autocomplete="off">
+              <span class="hint">Hint: Start with 'emp' for employee discounts.</span>
+            </div>
+            
+            <div class="form-actions right">
+              <button class="btn btn-primary" id="btn-continue-menu">Continue to Menu →</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: Menu / Cart -->
+          <div class="order-form-card" id="step2-card" style="display:none; max-width: 800px;">
+            <h3>Select Items</h3>
+            <div class="order-input-bar">
+               <input type="text" id="order-item-input" placeholder="Type Item ID (e.g. F01)..." autocomplete="off">
+               <button class="btn btn-primary" id="btn-add-item-id">Add</button>
+            </div>
+            <div class="cart-table-wrapper" style="margin-top:16px;">
+               <table class="cart-table">
+                  <thead><tr><th>ID</th><th>Name</th><th>Price</th><th>Action</th></tr></thead>
+                  <tbody id="cart-table-body"></tbody>
+               </table>
+            </div>
+            <div class="checkout-footer" style="margin-top:16px; border:none;">
+               <div class="subtotal-box">
+                 <span>Subtotal</span>
+                 <span id="label-subtotal">0.00 PKR</span>
+               </div>
+               <div class="form-actions right">
+                 <button class="btn btn-primary" id="btn-continue-confirm">Review Order →</button>
+               </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: Confirm / Bill -->
+          <div class="order-form-card" id="step3-card" style="display:none; max-width: 600px;">
+             <h3>Order Receipt</h3>
+             <div class="receipt-paper">
+                <div class="receipt-row"><span>Customer:</span> <span id="bill-cust-name">-</span></div>
+                <div class="receipt-row"><span>Role:</span> <span id="bill-cust-role">-</span></div>
+                <div class="receipt-row"><span>ID:</span> <span id="bill-cust-id">-</span></div>
+                <div class="receipt-divider"></div>
+                <table class="receipt-table">
+                  <tbody id="bill-items-body"></tbody>
+                </table>
+                <div class="receipt-divider"></div>
+                <div class="receipt-row"><span>Subtotal:</span> <span id="bill-subtotal">-</span></div>
+                <div class="receipt-row text-green" id="bill-discount-row" style="display:none;"><span>Discount:</span> <span id="bill-discount">-</span></div>
+                <div class="receipt-row bill-total-row"><span>Total:</span> <span id="bill-total">-</span></div>
+             </div>
+             <div class="form-actions right" style="margin-top: 24px;">
+              <button class="btn btn-primary btn-block" id="btn-finish-order">Place Order & Finish</button>
+            </div>
+          </div>
+
         </div>
-      </div>
-    </section>
+        <!-- END ORDERS -->
 
-    <!-- Academic Team Metadata -->
-    <footer class="academic-footer glass-panel">
-      <h3>Canteen Management System - Semester Project</h3>
-      <div class="team-grid">
-        <div class="team-member"><span>Hasan Shahir</span> <small>CT-25095</small></div>
-        <div class="team-member"><span>Areeba</span> <small>CT-25070</small></div>
-        <div class="team-member"><span>Bushra Abid</span> <small>CT-25057</small></div>
-        <div class="team-member"><span>Eshba</span> <small>CT-25052</small></div>
-        <div class="team-member"><span>Hassaan Hammed</span> <small>CT-25097</small></div>
-      </div>
-    </footer>
-  </div>
+        <!-- ========================================== -->
+        <!-- VIEW 4: INVENTORY / STOCK REPORT (Image 4) -->
+        <!-- ========================================== -->
+        <div class="view-section" id="view-inventory">
+          <div class="inventory-stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <span class="label">Total Categories</span>
+                <span class="value">2</span>
+              </div>
+              <div class="stat-icon bg-blue">📦</div>
+            </div>
+            <div class="stat-card border-warning">
+              <div class="stat-info">
+                <span class="label text-warning">Low Stock Alert</span>
+                <span class="value text-warning" id="stat-low-stock">0 Items</span>
+              </div>
+              <div class="stat-icon bg-warning">⚠️</div>
+            </div>
+            <div class="stat-card border-danger">
+              <div class="stat-info">
+                <span class="label text-danger">Out of Stock</span>
+                <span class="value text-danger" id="stat-out-stock">0 Items</span>
+              </div>
+              <div class="stat-icon bg-danger">🚫</div>
+            </div>
+          </div>
+          
+          <div class="inventory-columns">
+            <!-- Food Column -->
+            <div class="inventory-col">
+              <div class="category-header">
+                <h3>🍔 Food Stock</h3>
+                <span class="item-count badge">16 Items</span>
+              </div>
+              <div class="stock-list" id="stock-list-food">
+                <!-- JS Populated -->
+              </div>
+            </div>
+            
+            <!-- Drink Column -->
+            <div class="inventory-col">
+              <div class="category-header">
+                <h3>🥤 Drink Stock</h3>
+                <span class="item-count badge">15 Items</span>
+              </div>
+              <div class="stock-list" id="stock-list-drink">
+                <!-- JS Populated -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- END INVENTORY -->
 
-  <!-- Modal overlay for exception popups -->
-  <div class="modal-overlay" id="exception-modal">
-    <div class="modal-card">
-      <div class="modal-icon">⚠️</div>
-      <h3>System Validation Alert</h3>
-      <p id="modal-exception-msg">Error: Invalid ID format</p>
-      <button class="btn" id="btn-close-modal">Dismiss Exception</button>
-    </div>
+        <!-- ========================================== -->
+        <!-- VIEW 5: RESTOCK (Image 5)                  -->
+        <!-- ========================================== -->
+        <div class="view-section restock-bg" id="view-restock">
+          <!-- Background image is applied via CSS class .restock-bg -->
+          <div class="restock-center-wrapper">
+            
+            <div class="restock-card">
+              <div class="restock-card-header">
+                <h3>Inventory Update</h3>
+                <p>Quickly update stock levels for the central kitchen inventory.</p>
+              </div>
+              
+              <div class="form-group">
+                <label>Item ID</label>
+                <div class="input-with-icon">
+                  <span class="prefix">#</span>
+                  <input type="text" id="restock-item-id" placeholder="e.g. F01">
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label>Quantity to Add</label>
+                <div class="qty-selector">
+                  <button class="qty-btn" id="btn-qty-minus">−</button>
+                  <input type="number" id="restock-qty" value="1" min="1">
+                  <button class="qty-btn" id="btn-qty-plus">+</button>
+                </div>
+              </div>
+              
+              <button class="btn btn-primary btn-block" id="btn-submit-restock">📦 RESTOCK</button>
+            </div>
+            
+            <div class="restock-info-grid">
+              <div class="info-card">
+                <span class="icon">ℹ️</span>
+                <div>
+                  <h4>Automatic Sync</h4>
+                  <p>Changes are synced to the central inventory system in real-time.</p>
+                </div>
+              </div>
+              <div class="info-card">
+                <span class="icon">⏱️</span>
+                <div>
+                  <h4>Recent Logs</h4>
+                  <p>View the logs for the last 10 restock actions in Dashboard.</p>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        <!-- END RESTOCK -->
+
+      </div>
+    </main>
   </div>
 
   <script src="app.js"></script>
