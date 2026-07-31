@@ -1290,47 +1290,73 @@ body {
 }
 
 .editor-body {
-  padding: 0;
-  max-height: 450px;
+  max-height: 500px;
   overflow-y: auto;
+  overflow-x: auto;
+  background: #0d1117;
 }
 
 .editor-body pre {
   margin: 0;
-  padding: 20px;
-  counter-reset: line;
+  padding: 0;
 }
 
 .editor-body code {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1;
   color: #c9d1d9;
-  white-space: pre;
   display: block;
 }
 
-/* Syntax Highlighting */
-.editor-body .kw { color: #ff7b72; font-weight: 600; }
-.editor-body .type { color: #79c0ff; }
-.editor-body .str { color: #a5d6ff; }
-.editor-body .cm { color: #8b949e; font-style: italic; }
-.editor-body .fn { color: #d2a8ff; }
-.editor-body .num { color: #79c0ff; }
-.editor-body .op { color: #ff7b72; }
-.editor-body .cls { color: #ffa657; font-weight: 600; }
-.editor-body .acc { color: #7ee787; }
-.editor-body .pre { color: #ff7b72; }
-.editor-body .ln {
+/* Each code line */
+.code-line {
+  display: flex;
+  align-items: stretch;
+  min-height: 22px;
+  line-height: 22px;
+  transition: background 0.15s;
+}
+
+.code-line:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+/* Line number gutter */
+.line-gutter {
   display: inline-block;
-  width: 40px;
+  min-width: 48px;
+  padding: 0 16px 0 16px;
   text-align: right;
   color: #484f58;
-  margin-right: 20px;
   user-select: none;
+  font-size: 12px;
   border-right: 1px solid #21262d;
-  padding-right: 12px;
+  background: #0a0d13;
+  flex-shrink: 0;
 }
+
+/* Line content */
+.line-content {
+  padding-left: 16px;
+  white-space: pre;
+  flex: 1;
+}
+
+/* Syntax Colors — VS Code Dark+ inspired */
+.editor-body .kw { color: #c586c0; }
+.editor-body .kw-blue { color: #569cd6; }
+.editor-body .type { color: #4ec9b0; }
+.editor-body .str { color: #ce9178; }
+.editor-body .cm { color: #6a9955; font-style: italic; }
+.editor-body .fn { color: #dcdcaa; }
+.editor-body .num { color: #b5cea8; }
+.editor-body .op { color: #d4d4d4; }
+.editor-body .cls { color: #4ec9b0; }
+.editor-body .acc { color: #9cdcfe; }
+.editor-body .pre { color: #c586c0; }
+.editor-body .punc { color: #d4d4d4; }
+.editor-body .param { color: #9cdcfe; }
 
 .editor-footer {
   background-color: #161b22;
@@ -1344,11 +1370,12 @@ body {
 
 /* Animation for code lines appearing */
 @keyframes codeFadeIn {
-  from { opacity: 0; transform: translateX(-10px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.code-line-animated {
-  animation: codeFadeIn 0.05s ease backwards;
+.code-line {
+  animation: codeFadeIn 0.08s ease backwards;
 }
+
 

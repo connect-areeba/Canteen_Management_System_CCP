@@ -1271,8 +1271,8 @@ function highlightCpp(code) {
   const lines = code.split('\n');
   return lines.map((line, i) => {
     const highlighted = highlightLine(line);
-    return `<span class="code-line-animated" style="animation-delay:${i * 20}ms; display:block;"><span class="ln">${i + 1}</span>${highlighted}</span>`;
-  }).join('\n');
+    return `<div class="code-line" style="animation-delay:${i * 20}ms"><span class="line-gutter">${i + 1}</span><span class="line-content">${highlighted}</span></div>`;
+  }).join('');
 }
 
 // =================================================================
