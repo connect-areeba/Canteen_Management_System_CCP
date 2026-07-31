@@ -610,6 +610,247 @@ btnSubmitRestock.addEventListener("click", () => {
   }
 });
 
+// =================================================================
+// C++ Console Simulator Logic
+// =================================================================
+
+const btnCompileCpp = document.getElementById("btn-compile-cpp");
+const consoleOutput = document.getElementById("console-output");
+const consoleInputRow = document.getElementById("console-input-row");
+const consoleInput = document.getElementById("console-input");
+
+let consoleState = "IDLE"; // IDLE, MAIN_MENU, ORDER_NAME, ORDER_ID, ORDER_ITEMS, RESTOCK_ID, RESTOCK_QTY
+let consoleCart = [];
+let consoleCustomer = null;
+let consoleCustName = "";
+let tempRestockId = "";
+
+function printConsole(text, className = "") {
+  const line = document.createElement("div");
+  line.className = `console-line ${className}`;
+  line.textContent = text;
+  consoleOutput.appendChild(line);
+  consoleOutput.scrollTop = consoleOutput.scrollHeight;
+}
+
+btnCompileCpp.addEventListener("click", () => {
+  consoleOutput.innerHTML = "";
+  printConsole("C:\\Users\\Student\\CanteenMS> g++ -std=c++11 -o canteen.exe \"FINAL CAMPUS CANTEEN MS (1).cpp\"", "text-muted");
+  
+  btnCompileCpp.disabled = true;
+  btnCompileCpp.textContent = "⚡ Compiling...";
+
+  setTimeout(() => {
+    printConsole("[SUCCESS] Compilation completed successfully!");
+    printConsole("Starting canteen.exe...", "text-success");
+    printConsole("---------------------------------------------------------", "text-muted");
+    
+    btnCompileCpp.disabled = false;
+    btnCompileCpp.textContent = "⚡ Re-compile & Run";
+    consoleInputRow.style.display = "flex";
+    consoleInput.focus();
+    
+    startConsoleApp();
+  }, 1000);
+});
+
+function startConsoleApp() {
+  consoleState = "MAIN_MENU";
+  printMainMenu();
+}
+
+function printMainMenu() {
+  printConsole("\n========= MAIN MENU =========");
+  printConsole("1. Show Menu");
+  printConsole("2. Place Order");
+  printConsole("3. Stock Report");
+  printConsole("4. Restock Item");
+  printConsole("5. Exit");
+  printConsole("==============================");
+  printConsole("Enter your choice: ");
+}
+
+consoleInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const val = consoleInput.value.trim();
+    consoleInput.value = "";
+    if (consoleState !== "IDLE") {
+      printConsole("> " + val, "text-warning");
+      handleConsoleInput(val);
+    }
+  }
+});
+
+function handleConsoleInput(input) {
+  switch (consoleState) {
+    case "MAIN_MENU":
+      if (input === "1") {
+        printConsole("\n----- Menu -----");
+        menu.items.forEach(item => {
+          const type = item instanceof Food ? "[Food]" : "[Drink]";
+          const catStr = item instanceof Food ? ` | Category: ${item.getCategory()}` : "";
+          printConsole(`${type} ${item.getId()} - ${item.getName()}${catStr} | Price: ${item.getPrice()}`);
+        });
+        printMainMenu();
+      } else if (input === "2") {
+        // Show menu first
+        printConsole("\n----- Menu -----");
+        menu.items.forEach(item => {
+          const type = item instanceof Food ? "[Food]" : "[Drink]";
+          const catStr = item instanceof Food ? ` | Category: ${item.getCategory()}` : "";
+          printConsole(`${type} ${item.getId()} - ${item.getName()}${catStr} | Price: ${item.getPrice()}`);
+        });
+        printConsole("\nEnter your name: ");
+        consoleState = "ORDER_NAME";
+      } else if (input === "3") {
+        printConsole("\nFood Items Stock Status:");
+        menu.items.forEach(item => {
+          if (item instanceof Food) {
+            const stock = menu.getStock(item.getId());
+            if (stock.getRemaining() > 0) {
+              printConsole(`${item.getName()}: ${stock.getRemaining()} remaining`);
+            } else {
+              printConsole(`${item.getName()}: Out of stock`, "text-danger");
+            }
+          }
+        });
+        printConsole("\nDrink Items Stock Status:");
+        menu.items.forEach(item => {
+          if (item instanceof Drink) {
+            const stock = menu.getStock(item.getId());
+            if (stock.getRemaining() > 0) {
+              printConsole(`${item.getName()}: ${stock.getRemaining()} remaining`);
+            } else {
+              printConsole(`${item.getName()}: Out of stock`, "text-danger");
+            }
+          }
+        });
+        printMainMenu();
+      } else if (input === "4") {
+        printConsole("Enter Item ID to restock: ");
+        consoleState = "RESTOCK_ID";
+      } else if (input === "5") {
+        printConsole("Exiting... Thank you!");
+        consoleInputRow.style.display = "none";
+        consoleState = "IDLE";
+      } else {
+        printConsole("Invalid choice, try again!");
+        printMainMenu();
+      }
+      break;
+
+    case "ORDER_NAME":
+      consoleCustName = input;
+      printConsole("Enter your ID: ");
+      consoleState = "ORDER_ID";
+      break;
+
+    case "ORDER_ID":
+      const idInput = input.toLowerCase();
+      try {
+        if (idInput.substring(0, 3) === "std") {
+          consoleCustomer = new Student(consoleCustName, idInput);
+        } else if (idInput.substring(0, 3) === "emp") {
+          consoleCustomer = new Employee(consoleCustName, idInput);
+        } else {
+          throw new Error("Invalid ID");
+        }
+        
+        printConsole(`Welcome ${consoleCustName} (${consoleCustomer.getrole()})`);
+        printConsole("\nEnter Item ID to order (type 'done' to finish): ");
+        consoleCart = [];
+        consoleState = "ORDER_ITEMS";
+      } catch (err) {
+        printConsole("Error: " + err.message, "text-danger");
+        consoleState = "MAIN_MENU";
+        printMainMenu();
+      }
+      break;
+
+    case "ORDER_ITEMS":
+      if (input.toLowerCase() === "done") {
+        // Print bill
+        let subtotal = 0;
+        printConsole("\n----- Your Order -----");
+        consoleCart.forEach(item => {
+          const type = item instanceof Food ? "[Food]" : "[Drink]";
+          printConsole(`${type} ${item.getId()} - ${item.getName()} | Price: ${item.getPrice()}`);
+          subtotal += item.getPrice();
+        });
+        
+        const finalTotal = consoleCustomer.applydiscount(subtotal);
+        
+        printConsole("\n----- Bill -----");
+        printConsole("Customer : " + consoleCustName);
+        printConsole("Role     : " + consoleCustomer.getrole());
+        printConsole("Subtotal : " + subtotal.toFixed(2));
+        printConsole("Total    : " + finalTotal.toFixed(2));
+        
+        // Actually reduce stock for real
+        consoleCart.forEach(item => {
+          const stock = menu.getStock(item.getId());
+          stock.reduceStock(1);
+        });
+        renderInventory(); // Update global visual inventory too
+        
+        consoleState = "MAIN_MENU";
+        printMainMenu();
+      } else {
+        const selected = menu.selectItem(input.toUpperCase());
+        const stock = menu.getStock(input.toUpperCase());
+        if (selected && stock) {
+          if (stock.getRemaining() > 0) {
+            // Deduct stock temporarily in our console session
+            stock.reduceStock(1);
+            consoleCart.push(selected);
+            printConsole(`Added: ${selected.getName()}`);
+          } else {
+            printConsole(`Sorry, ${selected.getName()} is out of stock!`, "text-danger");
+          }
+        } else {
+          printConsole("Item not found!", "text-danger");
+        }
+        printConsole("Enter Item ID (or 'done'): ");
+      }
+      break;
+
+    case "RESTOCK_ID":
+      tempRestockId = input.toUpperCase();
+      const stockItem = menu.getStock(tempRestockId);
+      if (stockItem) {
+        printConsole("Enter quantity to add: ");
+        consoleState = "RESTOCK_QTY";
+      } else {
+        printConsole("Item not found!", "text-danger");
+        consoleState = "MAIN_MENU";
+        printMainMenu();
+      }
+      break;
+
+    case "RESTOCK_QTY":
+      const qty = parseInt(input);
+      if (!isNaN(qty) && qty > 0) {
+        menu.restock(tempRestockId, qty);
+        printConsole("Stock updated!");
+        renderInventory(); // Sync changes with central dashboard
+      } else {
+        printConsole("Invalid quantity!", "text-danger");
+      }
+      consoleState = "MAIN_MENU";
+      printMainMenu();
+      break;
+  }
+}
+
+// Intercept switchview to auto-focus console input
+const originalSwitchView = switchView;
+switchView = function(targetId) {
+  originalSwitchView(targetId);
+  if (targetId === "view-cpp-console" && consoleState !== "IDLE") {
+    setTimeout(() => consoleInput.focus(), 50);
+  }
+};
+
 // Initialize App
 renderMenu();
 renderInventory();

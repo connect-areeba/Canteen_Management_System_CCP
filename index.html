@@ -38,6 +38,9 @@
         <button class="nav-item" data-target="view-menu">
           <span class="nav-icon">🍽️</span> Menu
         </button>
+        <button class="nav-item" data-target="view-cpp-console">
+          <span class="nav-icon">💻</span> C++ Console
+        </button>
       </nav>
     </aside>
 
@@ -400,6 +403,33 @@
           </div>
         </div>
         <!-- END RESTOCK -->
+
+        <!-- ========================================== -->
+        <!-- VIEW 6: C++ CONSOLE SIMULATOR             -->
+        <!-- ========================================== -->
+        <div class="view-section" id="view-cpp-console">
+          <div class="cpp-console-header" style="margin-bottom: 20px;">
+            <p>Run the C++ Console Application interactively directly in the browser.</p>
+            <button class="btn btn-primary" id="btn-compile-cpp" style="margin-top: 10px;">⚡ Compile & Run</button>
+          </div>
+          
+          <div class="console-box">
+            <div class="console-titlebar">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+              <span class="title">FINAL CAMPUS CANTEEN MS (1).exe</span>
+            </div>
+            <div class="console-body" id="console-output">
+              <!-- JS Populated -->
+              <div class="console-line text-muted">Click "Compile & Run" to build and execute the C++ project...</div>
+            </div>
+            <div class="console-input-line" style="display: none;" id="console-input-row">
+              <span class="console-prompt">&gt;</span>
+              <input type="text" id="console-input" autocomplete="off" autofocus>
+            </div>
+          </div>
+        </div>
 
       </div>
     </main>
