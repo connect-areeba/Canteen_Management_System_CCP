@@ -1,0 +1,7 @@
+## 👥 Team Contributions
+
+- **Hasan Shahir (CT-25095)** – Team Lead; project coordination, report structuring, and UML class diagram design.
+- **Bushra Abid (CT-25057)** – Implemented the Person hierarchy (`Student`, `Employee`) and ID-based role verification.
+- **Areeba (CT-25070)** – Designed the UML model; implemented `MenuItem`, `Food`, `Drink`, and `MenuItemFactory` using the Factory Design Pattern.
+- **Eshba Siddiqui (CT-25052)** – Implemented the `Stock` class and inventory restocking functionality.
+- **Hassaan Hameed (CT-25097)** – Implemented the discount-related classes and discount calculation logic.
