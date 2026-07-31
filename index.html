@@ -41,6 +41,9 @@
         <button class="nav-item" data-target="view-cpp-console">
           <span class="nav-icon">💻</span> C++ Console
         </button>
+        <button class="nav-item" data-target="view-code-editor">
+          <span class="nav-icon">📝</span> Code Inspector
+        </button>
       </nav>
     </aside>
 
@@ -430,6 +433,188 @@
             </div>
           </div>
         </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 7: CODE INSPECTOR / OOP VISUALIZER    -->
+        <!-- ========================================== -->
+        <div class="view-section" id="view-code-editor">
+          
+          <!-- Top: OOP Concept Cards -->
+          <div class="oop-concepts-bar">
+            <div class="oop-card" data-concept="inheritance">
+              <div class="oop-icon">🧬</div>
+              <h4>Inheritance</h4>
+              <p>Food & Drink extend MenuItem</p>
+            </div>
+            <div class="oop-card" data-concept="polymorphism">
+              <div class="oop-icon">🔀</div>
+              <h4>Polymorphism</h4>
+              <p>Virtual display() & applydiscount()</p>
+            </div>
+            <div class="oop-card" data-concept="encapsulation">
+              <div class="oop-icon">🔒</div>
+              <h4>Encapsulation</h4>
+              <p>Private data, public getters</p>
+            </div>
+            <div class="oop-card" data-concept="abstraction">
+              <div class="oop-icon">📐</div>
+              <h4>Abstraction</h4>
+              <p>Pure virtual functions (= 0)</p>
+            </div>
+            <div class="oop-card" data-concept="factory">
+              <div class="oop-icon">🏭</div>
+              <h4>Factory Pattern</h4>
+              <p>MenuItemFactory creates objects</p>
+            </div>
+            <div class="oop-card" data-concept="exception">
+              <div class="oop-icon">⚠️</div>
+              <h4>Exception Handling</h4>
+              <p>try/catch for invalid IDs</p>
+            </div>
+          </div>
+
+          <!-- Middle: Animated Class Hierarchy -->
+          <div class="class-diagram-section">
+            <h3>📊 Class Hierarchy Diagram</h3>
+            <div class="diagram-canvas" id="class-diagram">
+              <!-- Row 1: Abstract bases -->
+              <div class="diagram-row">
+                <div class="class-node abstract" id="node-menuitem">
+                  <div class="node-header">«abstract»</div>
+                  <div class="node-title">MenuItem</div>
+                  <div class="node-fields">
+                    <span class="private">- itemId: string</span>
+                    <span class="private">- name: string</span>
+                    <span class="private">- price: double</span>
+                  </div>
+                  <div class="node-methods">
+                    <span class="public">+ getId()</span>
+                    <span class="public">+ getName()</span>
+                    <span class="virtual">+ display() = 0</span>
+                  </div>
+                </div>
+
+                <div class="class-node abstract" id="node-person">
+                  <div class="node-header">«abstract»</div>
+                  <div class="node-title">Person</div>
+                  <div class="node-fields">
+                    <span class="protected">⟠ name: string</span>
+                    <span class="protected">⟠ id: string</span>
+                  </div>
+                  <div class="node-methods">
+                    <span class="virtual">+ applydiscount() = 0</span>
+                    <span class="virtual">+ getrole() = 0</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Arrows -->
+              <div class="diagram-arrows">
+                <div class="arrow-group left">
+                  <div class="arrow-line"></div>
+                  <div class="arrow-split">
+                    <div class="arrow-branch"></div>
+                    <div class="arrow-branch"></div>
+                  </div>
+                </div>
+                <div class="arrow-group right">
+                  <div class="arrow-line"></div>
+                  <div class="arrow-split">
+                    <div class="arrow-branch"></div>
+                    <div class="arrow-branch"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 2: Derived classes -->
+              <div class="diagram-row derived">
+                <div class="class-node concrete" id="node-food">
+                  <div class="node-title">Food</div>
+                  <div class="node-fields">
+                    <span class="private">- category: string</span>
+                  </div>
+                  <div class="node-methods">
+                    <span class="override">+ display() ✓</span>
+                  </div>
+                </div>
+                <div class="class-node concrete" id="node-drink">
+                  <div class="node-title">Drink</div>
+                  <div class="node-methods">
+                    <span class="override">+ display() ✓</span>
+                  </div>
+                </div>
+                <div class="class-node concrete" id="node-student">
+                  <div class="node-title">Student</div>
+                  <div class="node-methods">
+                    <span class="override">+ applydiscount() ✓</span>
+                    <span class="detail">→ returns subtotal (0%)</span>
+                  </div>
+                </div>
+                <div class="class-node concrete" id="node-employee">
+                  <div class="node-title">Employee</div>
+                  <div class="node-methods">
+                    <span class="override">+ applydiscount() ✓</span>
+                    <span class="detail">→ returns subtotal * 0.95</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Utility classes -->
+              <div class="diagram-row utility">
+                <div class="class-node utility-node" id="node-stock">
+                  <div class="node-title">Stock</div>
+                  <div class="node-fields"><span class="private">- remainingQty</span></div>
+                  <div class="node-methods"><span class="public">+ reduceStock()</span></div>
+                </div>
+                <div class="class-node utility-node" id="node-menu">
+                  <div class="node-title">Menu</div>
+                  <div class="node-fields"><span class="private">- items[]</span></div>
+                  <div class="node-methods"><span class="public">+ selectItem()</span></div>
+                </div>
+                <div class="class-node utility-node" id="node-factory">
+                  <div class="node-title">MenuItemFactory</div>
+                  <div class="node-methods"><span class="static">+ createItem() «static»</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom: Source Code Viewer -->
+          <div class="code-viewer-section">
+            <h3>📄 Source Code Viewer</h3>
+            <div class="code-tabs">
+              <button class="code-tab active" data-module="menuitem">MenuItem</button>
+              <button class="code-tab" data-module="food">Food</button>
+              <button class="code-tab" data-module="drink">Drink</button>
+              <button class="code-tab" data-module="stock">Stock</button>
+              <button class="code-tab" data-module="person">Person</button>
+              <button class="code-tab" data-module="student">Student</button>
+              <button class="code-tab" data-module="employee">Employee</button>
+              <button class="code-tab" data-module="menu">Menu</button>
+              <button class="code-tab" data-module="factory">Factory</button>
+              <button class="code-tab" data-module="ordering">Ordering</button>
+              <button class="code-tab" data-module="main">main()</button>
+            </div>
+            <div class="code-editor-box">
+              <div class="editor-header">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="editor-filename" id="editor-filename">MenuItem.h</span>
+              </div>
+              <div class="editor-body">
+                <pre><code id="code-display"></code></pre>
+              </div>
+              <div class="editor-footer">
+                <span id="code-line-count">Lines: 0</span>
+                <span>C++ 11</span>
+                <span>UTF-8</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- END CODE INSPECTOR -->
 
       </div>
     </main>

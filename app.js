@@ -683,7 +683,7 @@ consoleInput.addEventListener("keydown", (e) => {
 
 function handleConsoleInput(input) {
   switch (consoleState) {
-    case "MAIN_MENU":
+    case "MAIN_MENU": {
       if (input === "1") {
         printConsole("\n----- Menu -----");
         menu.items.forEach(item => {
@@ -693,7 +693,6 @@ function handleConsoleInput(input) {
         });
         printMainMenu();
       } else if (input === "2") {
-        // Show menu first
         printConsole("\n----- Menu -----");
         menu.items.forEach(item => {
           const type = item instanceof Food ? "[Food]" : "[Drink]";
@@ -738,14 +737,16 @@ function handleConsoleInput(input) {
         printMainMenu();
       }
       break;
+    }
 
-    case "ORDER_NAME":
+    case "ORDER_NAME": {
       consoleCustName = input;
       printConsole("Enter your ID: ");
       consoleState = "ORDER_ID";
       break;
+    }
 
-    case "ORDER_ID":
+    case "ORDER_ID": {
       const idInput = input.toLowerCase();
       try {
         if (idInput.substring(0, 3) === "std") {
@@ -766,10 +767,10 @@ function handleConsoleInput(input) {
         printMainMenu();
       }
       break;
+    }
 
-    case "ORDER_ITEMS":
+    case "ORDER_ITEMS": {
       if (input.toLowerCase() === "done") {
-        // Print bill
         let subtotal = 0;
         printConsole("\n----- Your Order -----");
         consoleCart.forEach(item => {
@@ -786,12 +787,7 @@ function handleConsoleInput(input) {
         printConsole("Subtotal : " + subtotal.toFixed(2));
         printConsole("Total    : " + finalTotal.toFixed(2));
         
-        // Actually reduce stock for real
-        consoleCart.forEach(item => {
-          const stock = menu.getStock(item.getId());
-          stock.reduceStock(1);
-        });
-        renderInventory(); // Update global visual inventory too
+        renderInventory();
         
         consoleState = "MAIN_MENU";
         printMainMenu();
@@ -800,7 +796,6 @@ function handleConsoleInput(input) {
         const stock = menu.getStock(input.toUpperCase());
         if (selected && stock) {
           if (stock.getRemaining() > 0) {
-            // Deduct stock temporarily in our console session
             stock.reduceStock(1);
             consoleCart.push(selected);
             printConsole(`Added: ${selected.getName()}`);
@@ -813,8 +808,9 @@ function handleConsoleInput(input) {
         printConsole("Enter Item ID (or 'done'): ");
       }
       break;
+    }
 
-    case "RESTOCK_ID":
+    case "RESTOCK_ID": {
       tempRestockId = input.toUpperCase();
       const stockItem = menu.getStock(tempRestockId);
       if (stockItem) {
@@ -826,32 +822,453 @@ function handleConsoleInput(input) {
         printMainMenu();
       }
       break;
+    }
 
-    case "RESTOCK_QTY":
+    case "RESTOCK_QTY": {
       const qty = parseInt(input);
       if (!isNaN(qty) && qty > 0) {
-        menu.restock(tempRestockId, qty);
-        printConsole("Stock updated!");
-        renderInventory(); // Sync changes with central dashboard
+        const restockTarget = menu.getStock(tempRestockId);
+        if (restockTarget) {
+          restockTarget.addStock(qty);
+          printConsole("Stock updated!");
+          renderInventory();
+        }
       } else {
         printConsole("Invalid quantity!", "text-danger");
       }
       consoleState = "MAIN_MENU";
       printMainMenu();
       break;
+    }
   }
 }
 
 // Intercept switchview to auto-focus console input
 const originalSwitchView = switchView;
 switchView = function(targetId) {
+  if (!targetId) return;
   originalSwitchView(targetId);
   if (targetId === "view-cpp-console" && consoleState !== "IDLE") {
     setTimeout(() => consoleInput.focus(), 50);
   }
+  if (targetId === "view-code-editor") topbarTitle.textContent = "Code Inspector";
 };
+
+// =================================================================
+// Code Inspector - Source Code Store
+// =================================================================
+
+const cppModules = {
+  menuitem: {
+    file: "MenuItem.h",
+    code: `// Abstract Base Class — MenuItem
+class MenuItem {
+protected:
+    string itemId;
+    string name;
+    double price;
+public:
+    MenuItem(string itemId, string name, double price) {
+        this->itemId = itemId;
+        this->name = name;
+        this->price = price;
+    }
+    string getId() { return itemId; }
+    string getName() { return name; }
+    double getPrice() { return price; }
+    virtual void display() = 0;   // Pure virtual
+    virtual ~MenuItem() {}
+};`
+  },
+  food: {
+    file: "Food.h",
+    code: `// Food — inherits from MenuItem
+class Food : public MenuItem {
+private:
+    string category;
+public:
+    Food(string itemId, string name, double price, string category)
+        : MenuItem(itemId, name, price) {
+        this->category = category;
+    }
+    void display() override {
+        cout << "[Food] " << itemId << " - " << name
+             << " | Category: " << category
+             << " | Price: " << price << endl;
+    }
+};`
+  },
+  drink: {
+    file: "Drink.h",
+    code: `// Drink — inherits from MenuItem
+class Drink : public MenuItem {
+public:
+    Drink(string itemId, string name, double price)
+        : MenuItem(itemId, name, price) {}
+    void display() override {
+        cout << "[Drink] " << itemId << " - " << name
+             << " | Price: " << price << endl;
+    }
+};`
+  },
+  stock: {
+    file: "Stock.h",
+    code: `// Stock — tracks item inventory
+class Stock {
+private:
+    string itemId;
+    int totalQuantity;
+    int remainingQuantity;
+public:
+    Stock(string itemId, int quantity) {
+        this->itemId = itemId;
+        this->totalQuantity = quantity;
+        this->remainingQuantity = quantity;
+    }
+
+    string getItemId() { return itemId; }
+    int getRemaining() { return remainingQuantity; }
+    int getSold() { return totalQuantity - remainingQuantity; }
+    int getTotal() { return totalQuantity; }
+
+    bool reduceStock(int qty = 1) {
+        if (remainingQuantity >= qty) {
+            remainingQuantity -= qty;
+            return true;
+        }
+        return false;
+    }
+
+    void addStock(int qty) {
+        totalQuantity += qty;
+        remainingQuantity += qty;
+    }
+};`
+  },
+  person: {
+    file: "Person.h",
+    code: `// Abstract Base Class — Person
+class Person {
+protected:
+    string name;
+    string id;
+public:
+    Person(string n, string i) {
+        name = n;
+        id = i;
+    }
+    virtual double applydiscount(double subtotal) = 0;
+    virtual string getrole() = 0;
+};`
+  },
+  student: {
+    file: "Student.h",
+    code: `// Student — inherits from Person
+class Student : public Person {
+public:
+    Student(string n, string i) : Person(n, i) {}
+
+    double applydiscount(double subtotal) override {
+        return subtotal;   // No discount for students
+    }
+
+    string getrole() override {
+        return "Student";
+    }
+};`
+  },
+  employee: {
+    file: "Employee.h",
+    code: `// Employee — inherits from Person (5% discount)
+class Employee : public Person {
+public:
+    Employee(string n, string i) : Person(n, i) {}
+
+    double applydiscount(double subtotal) override {
+        return subtotal - subtotal * 0.05;  // 5% discount
+    }
+
+    string getrole() override {
+        return "Employee";
+    }
+};`
+  },
+  menu: {
+    file: "Menu.h",
+    code: `// Menu — aggregates MenuItem* and Stock
+class Menu {
+private:
+    vector<MenuItem*> items;
+    vector<Stock> stocks;
+public:
+    void addItem(MenuItem* item, int quantity = 0) {
+        if (item != nullptr) {
+            items.push_back(item);
+            stocks.push_back(Stock(item->getId(), quantity));
+        }
+    }
+
+    Stock* getStock(string itemId) {
+        for (int i = 0; i < (int)stocks.size(); i++) {
+            if (stocks[i].getItemId() == itemId)
+                return &stocks[i];
+        }
+        return nullptr;
+    }
+
+    MenuItem* selectItem(string itemId) {
+        for (int i = 0; i < (int)items.size(); i++) {
+            if (items[i]->getId() == itemId)
+                return items[i];
+        }
+        return nullptr;
+    }
+
+    void displayAll() {
+        cout << "\\n----- Menu -----" << endl;
+        for (int i = 0; i < (int)items.size(); i++)
+            items[i]->display();
+    }
+
+    ~Menu() {
+        for (int i = 0; i < (int)items.size(); i++)
+            delete items[i];
+    }
+};`
+  },
+  factory: {
+    file: "MenuItemFactory.h",
+    code: `// Factory Pattern — creates MenuItem objects
+class MenuItemFactory {
+public:
+    static MenuItem* createItem(
+        string type,
+        string itemId,
+        string name,
+        double price,
+        string category = ""
+    ) {
+        if (type == "Food") {
+            return new Food(itemId, name, price, category);
+        }
+        else if (type == "Drink") {
+            return new Drink(itemId, name, price);
+        }
+        return nullptr;
+    }
+};`
+  },
+  ordering: {
+    file: "Ordering.cpp",
+    code: `// placeOrder — uses try/catch exception handling
+void placeOrder(Menu &menu) {
+    string name, id;
+    cout << "\\nEnter your name: ";
+    cin.ignore(numeric_limits<streamsize>::max(), '\\n');
+    getline(cin, name);
+    cout << "Enter your ID: ";
+    cin >> id;
+
+    try {
+        if (id.substr(0, 3) == "std") {
+            Student s(name, id);
+            printBillAndOrder(menu, s, name);
+        }
+        else if (id.substr(0, 3) == "emp") {
+            Employee e(name, id);
+            printBillAndOrder(menu, e, name);
+        }
+        else {
+            throw runtime_error("Invalid ID");
+        }
+    }
+    catch (const runtime_error &e) {
+        cout << "Error: " << e.what() << endl;
+    }
+    catch (const exception &e) {
+        cout << "Error: " << e.what() << endl;
+    }
+}`
+  },
+  main: {
+    file: "main.cpp",
+    code: `int main() {
+    Menu menu;
+
+    // Add Food Items
+    menu.addItem(MenuItemFactory::createItem("Food", "F01",
+        "Chicken Biryani", 250, "Meal"), 10);
+    menu.addItem(MenuItemFactory::createItem("Food", "F05",
+        "Zinger Burger", 350, "Fast Food"), 10);
+    // ... (16 food items total)
+
+    // Add Drink Items
+    menu.addItem(MenuItemFactory::createItem("Drink", "D01",
+        "Cola", 80), 20);
+    // ... (15 drink items total)
+
+    int option;
+    do {
+        cout << "\\n========= MAIN MENU =========" << endl;
+        cout << "1. Show Menu" << endl;
+        cout << "2. Place Order" << endl;
+        cout << "3. Stock Report" << endl;
+        cout << "4. Restock Item" << endl;
+        cout << "5. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> option;
+
+        switch (option) {
+            case 1: menu.displayAll(); break;
+            case 2: menu.displayAll();
+                    placeOrder(menu); break;
+            case 3: menu.displayStockReport(); break;
+            case 4: {
+                string id; int qty;
+                cout << "Enter Item ID to restock: ";
+                cin >> id;
+                cout << "Enter quantity to add: ";
+                cin >> qty;
+                menu.restock(id, qty);
+                break;
+            }
+            case 5: cout << "Exiting..." << endl; break;
+            default: cout << "Invalid choice!" << endl;
+        }
+    } while (option != 5);
+
+    return 0;
+}`
+  }
+};
+
+// =================================================================
+// Syntax Highlighting Engine
+// =================================================================
+
+function highlightCpp(code) {
+  // Escape HTML first
+  let html = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  
+  // Comments (// ...)
+  html = html.replace(/(\/\/.*)/g, '<span class="cm">$1</span>');
+  
+  // Strings
+  html = html.replace(/"([^"\\]*(\\.[^"\\]*)*)"/g, '<span class="str">"$1"</span>');
+  
+  // Keywords
+  const keywords = ['class','public','private','protected','virtual','override','static',
+    'return','if','else','for','while','do','switch','case','break','default',
+    'try','catch','throw','new','delete','const','nullptr','using','namespace',
+    'void','int','double','string','bool','true','false','this','endl','cout','cin'];
+  keywords.forEach(kw => {
+    const regex = new RegExp('\\b(' + kw + ')\\b', 'g');
+    html = html.replace(regex, (match, g1) => {
+      // Don't highlight inside comments or strings
+      return '<span class="kw">' + g1 + '</span>';
+    });
+  });
+  
+  // Type names
+  const types = ['MenuItem','Food','Drink','Stock','Person','Student','Employee',
+    'Menu','MenuItemFactory','vector','runtime_error','exception','streamsize'];
+  types.forEach(t => {
+    const regex = new RegExp('\\b(' + t + ')\\b', 'g');
+    html = html.replace(regex, '<span class="cls">$1</span>');
+  });
+  
+  // Numbers
+  html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
+
+  // Add line numbers
+  const lines = html.split('\n');
+  return lines.map((line, i) => {
+    return `<span class="code-line-animated" style="animation-delay:${i * 15}ms; display:block;"><span class="ln">${i + 1}</span>${line}</span>`;
+  }).join('\n');
+}
+
+// =================================================================
+// Code Tab Switching
+// =================================================================
+
+const codeTabs = document.querySelectorAll('.code-tab');
+const codeDisplay = document.getElementById('code-display');
+const editorFilename = document.getElementById('editor-filename');
+const codeLineCount = document.getElementById('code-line-count');
+
+function loadCodeModule(moduleName) {
+  const mod = cppModules[moduleName];
+  if (!mod) return;
+  
+  editorFilename.textContent = mod.file;
+  const lineCount = mod.code.split('\n').length;
+  codeLineCount.textContent = `Lines: ${lineCount}`;
+  codeDisplay.innerHTML = highlightCpp(mod.code);
+}
+
+codeTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    codeTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    loadCodeModule(tab.getAttribute('data-module'));
+  });
+});
+
+// Load default module
+loadCodeModule('menuitem');
+
+// OOP Concept cards — click to highlight related diagram nodes
+document.querySelectorAll('.oop-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const concept = card.getAttribute('data-concept');
+    // Flash related nodes
+    const nodeMap = {
+      inheritance: ['node-food','node-drink','node-student','node-employee'],
+      polymorphism: ['node-menuitem','node-person'],
+      encapsulation: ['node-stock','node-menu'],
+      abstraction: ['node-menuitem','node-person'],
+      factory: ['node-factory'],
+      exception: []
+    };
+    const related = nodeMap[concept] || [];
+    
+    // Scroll to diagram
+    document.querySelector('.class-diagram-section').scrollIntoView({ behavior: 'smooth' });
+    
+    // Flash animation
+    document.querySelectorAll('.class-node').forEach(n => n.style.borderColor = '');
+    related.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.borderColor = 'var(--accent-primary)';
+        el.style.boxShadow = '0 0 20px rgba(245,158,11,0.3)';
+        setTimeout(() => {
+          el.style.borderColor = '';
+          el.style.boxShadow = '';
+        }, 2000);
+      }
+    });
+
+    // Also switch to related code tab
+    const codeMap = {
+      inheritance: 'food',
+      polymorphism: 'menuitem',
+      encapsulation: 'stock',
+      abstraction: 'person',
+      factory: 'factory',
+      exception: 'ordering'
+    };
+    if (codeMap[concept]) {
+      codeTabs.forEach(t => t.classList.remove('active'));
+      const targetTab = document.querySelector(`.code-tab[data-module="${codeMap[concept]}"]`);
+      if (targetTab) targetTab.classList.add('active');
+      loadCodeModule(codeMap[concept]);
+    }
+  });
+});
 
 // Initialize App
 renderMenu();
 renderInventory();
 switchView("view-dashboard");
+
