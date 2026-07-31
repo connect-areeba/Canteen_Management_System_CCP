@@ -317,7 +317,7 @@ function renderMenu() {
         </div>
       </div>
       <div class="menu-list-card-right">
-        <span class="item-price">$${(item.getPrice()).toFixed(2)}</span>
+        <span class="item-price">${item.getPrice()} PKR</span>
         <button class="edit-btn">✎</button>
       </div>
     `;
@@ -478,13 +478,13 @@ function updateCartUI() {
     row.innerHTML = `
       <td style="color:var(--text-muted);">#${item.getId()}</td>
       <td>${item.getName()}</td>
-      <td style="color:var(--accent-primary);">$${(item.getPrice()).toFixed(2)}</td>
+      <td style="color:var(--accent-primary);">${item.getPrice()} PKR</td>
       <td><button class="btn-remove-cart" data-index="${index}">×</button></td>
     `;
     cartTableBody.appendChild(row);
   });
   
-  labelSubtotal.textContent = `$${(subtotal).toFixed(2)}`;
+  labelSubtotal.textContent = `${subtotal} PKR`;
   
   document.querySelectorAll(".btn-remove-cart").forEach(btn => {
     btn.addEventListener("click", (e) => {
@@ -534,7 +534,7 @@ btnContinueConfirm.addEventListener("click", () => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${item.getName()} <small style="color:var(--text-muted)">#${item.getId()}</small></td>
-      <td class="text-right">$${(item.getPrice()).toFixed(2)}</td>
+      <td class="text-right">${item.getPrice()} PKR</td>
     `;
     billItemsBody.appendChild(row);
   });
@@ -542,14 +542,14 @@ btnContinueConfirm.addEventListener("click", () => {
   const finalTotal = currentCustomer.applydiscount(subtotal);
   const discountAmt = subtotal - finalTotal;
   
-  billSubtotal.textContent = `$${(subtotal).toFixed(2)}`;
+  billSubtotal.textContent = `${subtotal} PKR`;
   if (discountAmt > 0) {
     billDiscountRow.style.display = "flex";
-    billDiscount.textContent = `-$${(discountAmt).toFixed(2)}`;
+    billDiscount.textContent = `-${discountAmt} PKR`;
   } else {
     billDiscountRow.style.display = "none";
   }
-  billTotal.textContent = `$${(finalTotal).toFixed(2)}`;
+  billTotal.textContent = `${finalTotal} PKR`;
 });
 
 // Step 3 Finish
@@ -561,9 +561,9 @@ btnFinishOrder.addEventListener("click", () => {
   });
   
   // Update Revenue
-  let currentRev = parseFloat(dashRevenue.textContent.replace('$', '').replace(',', ''));
+  let currentRev = parseFloat(dashRevenue.textContent.replace(' PKR', '').replace(',', ''));
   let orderTotal = currentCustomer.applydiscount(currentCart.reduce((sum, item) => sum + item.getPrice(), 0));
-  dashRevenue.textContent = `$${(currentRev + orderTotal).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+  dashRevenue.textContent = `${(currentRev + orderTotal).toLocaleString('en-US', {minimumFractionDigits: 2})} PKR`;
   
   // Render updates
   renderInventory();
