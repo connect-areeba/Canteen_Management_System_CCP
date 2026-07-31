@@ -1143,47 +1143,135 @@ void placeOrder(Menu &menu) {
 };
 
 // =================================================================
-// Syntax Highlighting Engine
+// Syntax Highlighting Engine (Token-based, no double-matching)
 // =================================================================
 
-function highlightCpp(code) {
-  // Escape HTML first
-  let html = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  
-  // Comments (// ...)
-  html = html.replace(/(\/\/.*)/g, '<span class="cm">$1</span>');
-  
-  // Strings
-  html = html.replace(/"([^"\\]*(\\.[^"\\]*)*)"/g, '<span class="str">"$1"</span>');
-  
-  // Keywords
-  const keywords = ['class','public','private','protected','virtual','override','static',
-    'return','if','else','for','while','do','switch','case','break','default',
-    'try','catch','throw','new','delete','const','nullptr','using','namespace',
-    'void','int','double','string','bool','true','false','this','endl','cout','cin'];
-  keywords.forEach(kw => {
-    const regex = new RegExp('\\b(' + kw + ')\\b', 'g');
-    html = html.replace(regex, (match, g1) => {
-      // Don't highlight inside comments or strings
-      return '<span class="kw">' + g1 + '</span>';
-    });
-  });
-  
-  // Type names
-  const types = ['MenuItem','Food','Drink','Stock','Person','Student','Employee',
-    'Menu','MenuItemFactory','vector','runtime_error','exception','streamsize'];
-  types.forEach(t => {
-    const regex = new RegExp('\\b(' + t + ')\\b', 'g');
-    html = html.replace(regex, '<span class="cls">$1</span>');
-  });
-  
-  // Numbers
-  html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
+const CPP_KEYWORDS = new Set([
+  'class','public','private','protected','virtual','override','static',
+  'return','if','else','for','while','do','switch','case','break','default',
+  'try','catch','throw','new','delete','const','nullptr','using','namespace',
+  'void','int','double','string','bool','true','false','this','endl','cout','cin',
+  'template','typename','struct','enum','typedef','auto','inline','explicit',
+  'operator','sizeof','dynamic_cast','static_cast','reinterpret_cast','const_cast',
+  'volatile','mutable','register','extern','signed','unsigned','char','float',
+  'long','short','wchar_t','include','ifdef','ifndef','define','endif','pragma'
+]);
 
-  // Add line numbers
-  const lines = html.split('\n');
+const CPP_TYPES = new Set([
+  'MenuItem','Food','Drink','Stock','Person','Student','Employee',
+  'Menu','MenuItemFactory','vector','runtime_error','exception',
+  'streamsize','ostream','istream','ofstream','ifstream','size_t'
+]);
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function highlightLine(line) {
+  let result = '';
+  let i = 0;
+  
+  while (i < line.length) {
+    // 1) Comment: // to end of line
+    if (line[i] === '/' && line[i+1] === '/') {
+      result += '<span class="cm">' + escapeHtml(line.substring(i)) + '</span>';
+      return result; // rest of line is comment
+    }
+    
+    // 2) Preprocessor: #include, #define etc
+    if (line[i] === '#' && result.trim() === '') {
+      result += '<span class="pre">' + escapeHtml(line.substring(i)) + '</span>';
+      return result;
+    }
+    
+    // 3) String literal
+    if (line[i] === '"') {
+      let j = i + 1;
+      while (j < line.length && !(line[j] === '"' && line[j-1] !== '\\')) j++;
+      j++; // include closing quote
+      result += '<span class="str">' + escapeHtml(line.substring(i, j)) + '</span>';
+      i = j;
+      continue;
+    }
+    
+    // 4) Char literal
+    if (line[i] === "'") {
+      let j = i + 1;
+      while (j < line.length && !(line[j] === "'" && line[j-1] !== '\\')) j++;
+      j++;
+      result += '<span class="str">' + escapeHtml(line.substring(i, j)) + '</span>';
+      i = j;
+      continue;
+    }
+    
+    // 5) Numbers
+    if (/[0-9]/.test(line[i]) && (i === 0 || /[^a-zA-Z_]/.test(line[i-1]))) {
+      let j = i;
+      while (j < line.length && /[0-9.]/.test(line[j])) j++;
+      result += '<span class="num">' + line.substring(i, j) + '</span>';
+      i = j;
+      continue;
+    }
+    
+    // 6) Identifiers (words) — check for keywords, types, or plain
+    if (/[a-zA-Z_]/.test(line[i])) {
+      let j = i;
+      while (j < line.length && /[a-zA-Z0-9_]/.test(line[j])) j++;
+      const word = line.substring(i, j);
+      
+      if (CPP_KEYWORDS.has(word)) {
+        result += '<span class="kw">' + word + '</span>';
+      } else if (CPP_TYPES.has(word)) {
+        result += '<span class="cls">' + word + '</span>';
+      } else {
+        // Check if it's a function call (followed by '(')
+        let k = j;
+        while (k < line.length && line[k] === ' ') k++;
+        if (line[k] === '(') {
+          result += '<span class="fn">' + escapeHtml(word) + '</span>';
+        } else {
+          result += escapeHtml(word);
+        }
+      }
+      i = j;
+      continue;
+    }
+    
+    // 7) Operators: << >> -> :: = 0
+    if (line[i] === '<' && line[i+1] === '<') {
+      result += '<span class="op">&lt;&lt;</span>';
+      i += 2;
+      continue;
+    }
+    if (line[i] === '>' && line[i+1] === '>') {
+      result += '<span class="op">&gt;&gt;</span>';
+      i += 2;
+      continue;
+    }
+    if (line[i] === '-' && line[i+1] === '>') {
+      result += '<span class="op">-&gt;</span>';
+      i += 2;
+      continue;
+    }
+    if (line[i] === ':' && line[i+1] === ':') {
+      result += '<span class="op">::</span>';
+      i += 2;
+      continue;
+    }
+    
+    // 8) Everything else — escape and pass through
+    result += escapeHtml(line[i]);
+    i++;
+  }
+  
+  return result;
+}
+
+function highlightCpp(code) {
+  const lines = code.split('\n');
   return lines.map((line, i) => {
-    return `<span class="code-line-animated" style="animation-delay:${i * 15}ms; display:block;"><span class="ln">${i + 1}</span>${line}</span>`;
+    const highlighted = highlightLine(line);
+    return `<span class="code-line-animated" style="animation-delay:${i * 20}ms; display:block;"><span class="ln">${i + 1}</span>${highlighted}</span>`;
   }).join('\n');
 }
 
