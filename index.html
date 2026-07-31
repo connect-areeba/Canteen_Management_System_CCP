@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive web portal for Campus Canteen Management System, illustrating C++ OOP principles.">
+  <title>Campus Canteen Management System - OOP Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient frosted-glass background glow effects -->
+  <div class="ambient-glow bg-blue"></div>
+  <div class="ambient-glow bg-purple"></div>
+  <div class="scanlines"></div>
+
+  <div class="app-wrapper">
+    <!-- Header -->
+    <header class="main-header glass-panel">
+      <div class="logo-group">
+        <span class="logo-icon">🍽️</span>
+        <div class="brand-text">
+          <h1>CAMPUS CANTEEN</h1>
+          <span class="system-tag">OOP SYSTEM PORT</span>
+        </div>
+      </div>
+      <div class="header-academic-details">
+        <div class="detail-pill"><strong>University:</strong> NED University of Engineering & Tech</div>
+        <div class="detail-pill"><strong>Department:</strong> BCIT (Computer & IT)</div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Grid -->
+    <div class="workspace-grid">
+      
+      <!-- Panel 1: Menu Explorer -->
+      <section class="workspace-panel glass-panel" id="panel-menu">
+        <div class="panel-header">
+          <h2><span class="panel-num">01</span> SHOW MENU</h2>
+          <div class="menu-tabs">
+            <button class="menu-tab-btn active" data-category="all">All Items</button>
+            <button class="menu-tab-btn" data-category="food">Food</button>
+            <button class="menu-tab-btn" data-category="drink">Drinks</button>
+          </div>
+        </div>
+        <div class="menu-list-wrapper" id="menu-items-grid">
+          <!-- Dynamically populated from app.js -->
+        </div>
+      </section>
+
+      <!-- Panel 2: Interactive Terminal / Order Placement -->
+      <section class="workspace-panel glass-panel" id="panel-terminal">
+        <div class="panel-header">
+          <h2><span class="panel-num">02</span> PLACE ORDER</h2>
+          <div class="term-status"><span class="status-dot"></span> SIMULATOR</div>
+        </div>
+        
+        <div class="terminal-container">
+          <!-- State A: Login -->
+          <div class="terminal-screen active" id="screen-login">
+            <div class="terminal-prompt">
+              <span class="prompt-dir">canteen-system:~$</span> ./authenticate_user
+            </div>
+            <p class="terminal-help-text">Enter customer details. The system checks the ID prefix to instantiate either a Student or Employee object dynamically.</p>
+            
+            <div class="form-inputs">
+              <div class="form-group">
+                <label for="input-name">Name</label>
+                <input type="text" id="input-name" placeholder="Enter full name" autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label for="input-id">ID</label>
+                <input type="text" id="input-id" placeholder="std-XXXX (Student) or emp-XXXX (Employee)" autocomplete="off">
+                <span class="hint-text">Prefix 'std' = Student (0% discount), prefix 'emp' = Employee (5% discount)</span>
+              </div>
+              <button class="btn glow-btn" id="btn-login-submit">Authenticate & Start Order</button>
+            </div>
+          </div>
+
+          <!-- State B: Item Ordering -->
+          <div class="terminal-screen" id="screen-ordering">
+            <div class="ordering-hud">
+              <div class="auth-user-info">
+                <span>User: <strong id="hud-name">-</strong></span>
+                <span>Role: <strong id="hud-role" class="badge">-</strong></span>
+                <span>ID: <strong id="hud-id">-</strong></span>
+              </div>
+              <button class="btn btn-secondary-sm" id="btn-exit-ordering">Cancel</button>
+            </div>
+
+            <div class="order-input-bar">
+              <div class="terminal-prompt-inline">canteen-system:~$ order --item-id</div>
+              <input type="text" id="terminal-item-input" placeholder="Enter Item ID (e.g. F01, D01) or click '+' from Menu" autocomplete="off">
+              <button class="btn btn-primary-sm" id="btn-add-item-id">Add</button>
+            </div>
+
+            <!-- Cart Table -->
+            <div class="cart-container">
+              <h3>Selected Items</h3>
+              <div class="cart-table-wrapper">
+                <table class="cart-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Item Name</th>
+                      <th>Category</th>
+                      <th>Price</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cart-table-body">
+                    <!-- Dynamic Cart Rows -->
+                  </tbody>
+                </table>
+                <div class="empty-cart-msg" id="cart-empty-msg">No items in order. Select items above.</div>
+              </div>
+            </div>
+
+            <div class="checkout-footer">
+              <div class="subtotal-box">
+                <span>Subtotal:</span>
+                <span id="label-subtotal">0.00 PKR</span>
+              </div>
+              <button class="btn glow-btn checkout-btn" id="btn-submit-order">Checkout & Generate Bill</button>
+            </div>
+          </div>
+
+          <!-- State C: Bill Receipt Output -->
+          <div class="terminal-screen" id="screen-bill">
+            <div class="receipt-outer">
+              <div class="receipt-paper">
+                <div class="receipt-deco-top"></div>
+                <div class="receipt-header">
+                  <h3>CAMPUS CANTEEN</h3>
+                  <p>NED University of Engineering & Tech</p>
+                  <p class="receipt-dot-line">------------------------------------</p>
+                </div>
+                <div class="receipt-meta">
+                  <div class="receipt-row"><span>Date:</span> <span id="bill-date">-</span></div>
+                  <div class="receipt-row"><span>Customer:</span> <span id="bill-cust-name">-</span></div>
+                  <div class="receipt-row"><span>Role:</span> <span id="bill-cust-role">-</span></div>
+                  <div class="receipt-row"><span>ID:</span> <span id="bill-cust-id">-</span></div>
+                  <p class="receipt-dot-line">------------------------------------</p>
+                </div>
+                <table class="receipt-table">
+                  <thead>
+                    <tr>
+                      <th>Item Description</th>
+                      <th class="text-right">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bill-items-body">
+                    <!-- Bill rows -->
+                  </tbody>
+                </table>
+                <div class="receipt-summary">
+                  <p class="receipt-dot-line">------------------------------------</p>
+                  <div class="receipt-row">
+                    <span>Subtotal:</span>
+                    <span id="bill-subtotal">-</span>
+                  </div>
+                  <div class="receipt-row text-green" id="bill-discount-row">
+                    <span>Discount (Employee 5%):</span>
+                    <span id="bill-discount">-</span>
+                  </div>
+                  <div class="receipt-row font-large bill-total-row">
+                    <span>Total Bill:</span>
+                    <span id="bill-total">-</span>
+                  </div>
+                  <p class="receipt-dot-line">====================================</p>
+                </div>
+                <div class="receipt-footer">
+                  <p>Dynamic Polymorphism applied successfully.</p>
+                  <p>Thank You For Ordering!</p>
+                </div>
+              </div>
+            </div>
+            <button class="btn glow-btn btn-full" id="btn-restart-terminal">New Order / Session</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel 3: Stock Report & Restock Interface -->
+      <section class="workspace-panel glass-panel" id="panel-stock">
+        <div class="panel-header">
+          <h2><span class="panel-num">03</span> STOCK REPORT & RESTOCK</h2>
+        </div>
+        <div class="stock-dashboard-body">
+          <div class="stock-list-grid" id="stock-list-grid">
+            <!-- Dynamic Stock Cards -->
+          </div>
+          
+          <div class="restock-section glass-panel-inner">
+            <h3>Restock Menu Item</h3>
+            <div class="restock-form">
+              <div class="form-group-inline">
+                <label for="restock-id-select">Item</label>
+                <select id="restock-id-select">
+                  <!-- Dynamically populated options -->
+                </select>
+              </div>
+              <div class="form-group-inline">
+                <label for="restock-qty-input">Quantity</label>
+                <input type="number" id="restock-qty-input" min="1" max="100" value="10">
+              </div>
+              <button class="btn btn-secondary-sm" id="btn-submit-restock">Add Stock</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- OOP Concepts / Class Visualizer Section -->
+    <section class="oop-section glass-panel">
+      <div class="panel-header">
+        <h2><span class="panel-num">04</span> OOP CONCEPT VISUALIZER</h2>
+        <p class="section-desc">Interactive mapping of the C++ OOP design patterns used in the source code.</p>
+      </div>
+      <div class="oop-visualizer-grid">
+        <!-- Card 1: Inheritance -->
+        <div class="concept-card glass-panel-inner">
+          <div class="concept-icon">🧬</div>
+          <h3>Class Inheritance</h3>
+          <div class="concept-tree">
+            <div class="tree-node parent">MenuItem (Base)</div>
+            <div class="tree-children">
+              <div class="tree-node child">Food</div>
+              <div class="tree-node child">Drink</div>
+            </div>
+            <div class="tree-node parent" style="margin-top: 15px;">Person (Base)</div>
+            <div class="tree-children">
+              <div class="tree-node child">Student</div>
+              <div class="tree-node child">Employee</div>
+            </div>
+          </div>
+          <p>Enables structural code reuse. Base classes declare shared attributes like IDs and names, while derived subclasses extend functionalities.</p>
+        </div>
+
+        <!-- Card 2: Factory Design Pattern -->
+        <div class="concept-card glass-panel-inner">
+          <div class="concept-icon">🏭</div>
+          <h3>Factory Pattern</h3>
+          <div class="factory-flow">
+            <div class="flow-box">MenuItemFactory</div>
+            <div class="flow-label">static createItem()</div>
+            <div class="flow-split">
+              <div class="flow-subbox">new Food()</div>
+              <div class="flow-subbox">new Drink()</div>
+            </div>
+          </div>
+          <p>Decouples object creation from instantiation. Decides whether to generate a `Food` or `Drink` object based on the parameters passed during run-time.</p>
+        </div>
+
+        <!-- Card 3: Runtime Polymorphism -->
+        <div class="concept-card glass-panel-inner">
+          <div class="concept-icon">🔄</div>
+          <h3>Polymorphism</h3>
+          <div class="poly-visual">
+            <div class="poly-node">
+              <span>Generic Reference</span>
+              <strong>Person& customer</strong>
+            </div>
+            <div class="poly-dispatch">
+              <div class="poly-branch">
+                <span>If Student</span>
+                <strong>applydiscount() → 0%</strong>
+              </div>
+              <div class="poly-branch">
+                <span>If Employee</span>
+                <strong>applydiscount() → 5%</strong>
+              </div>
+            </div>
+          </div>
+          <p>Utilizes virtual functions dynamically linked at runtime. The same generic reference resolved automatically to calculate role-specific pricing.</p>
+        </div>
+
+        <!-- Card 4: Exception Handling -->
+        <div class="concept-card glass-panel-inner">
+          <div class="concept-icon">⚠️</div>
+          <h3>Exception Handling</h3>
+          <div class="exception-visual">
+            <div class="block try">try { id.substr(0,3) }</div>
+            <div class="block throw">throw runtime_error("Invalid ID")</div>
+            <div class="block catch">catch(const exception &e)</div>
+          </div>
+          <p>Intercepts run-time errors cleanly. Validates ID prefixes to prevent initialization of malformed customer objects.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- C++ Source Code Inspector -->
+    <section class="code-inspector-section glass-panel">
+      <div class="panel-header" id="code-inspector-trigger">
+        <h2>📁 ORIGINAL C++ SOURCE CODE INSPECTOR</h2>
+        <span class="chevron-icon">▲</span>
+      </div>
+      <div class="code-inspector-body">
+        <div class="code-navigator">
+          <button class="code-nav-btn active" data-file="full">FINAL_CAMPUS_CANTEEN.cpp (Complete)</button>
+          <button class="code-nav-btn" data-file="menuitem">MenuItem & Subclasses</button>
+          <button class="code-nav-btn" data-file="stock">Stock Management Class</button>
+          <button class="code-nav-btn" data-file="person">Person & Student/Employee Classes</button>
+          <button class="code-nav-btn" data-file="ordering">placeOrder & Billing Loops</button>
+        </div>
+        <div class="code-content-wrapper">
+          <pre><code id="cpp-code-display" class="language-cpp">// Loading code snippet...</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Academic Team Metadata -->
+    <footer class="academic-footer glass-panel">
+      <h3>Canteen Management System - OOP Semester Project</h3>
+      <div class="team-grid">
+        <div class="team-member"><span>Hasan Shahir</span> <small>CT-25095</small></div>
+        <div class="team-member"><span>Areeba</span> <small>CT-25070</small></div>
+        <div class="team-member"><span>Bushra Abid</span> <small>CT-25057</small></div>
+        <div class="team-member"><span>Eshba</span> <small>CT-25052</small></div>
+        <div class="team-member"><span>Hassaan Hammed</span> <small>CT-25097</small></div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal overlay for exception popups -->
+  <div class="modal-overlay" id="exception-modal">
+    <div class="modal-card">
+      <div class="modal-icon">⚠️</div>
+      <h3>std::runtime_error</h3>
+      <p id="modal-exception-msg">Error: Invalid ID format</p>
+      <button class="btn btn-secondary-sm" id="btn-close-modal">Dismiss Exception (catch)</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 # 🍽️ Canteen Management System (C++ OOP)
 
+### 🌐 [Interactive Web Simulator (Click to View Live Project)](https://hasanshahir.github.io/Canteen_Management_System_CCP/)
+
 A console-based **Canteen Management System** developed in **C++** using Object-Oriented Programming (OOP) concepts. The system allows users to browse the menu, place orders, manage stock, generate bills, and apply discounts based on customer type.
 
 ---
